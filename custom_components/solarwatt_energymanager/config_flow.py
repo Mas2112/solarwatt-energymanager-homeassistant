@@ -7,7 +7,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.components.solarwatt_energymanager.energy_manager import (
+from custom_components.solarwatt_energymanager.energy_manager import (
     CannotConnect,
     CannotParseData,
     EnergyManager,

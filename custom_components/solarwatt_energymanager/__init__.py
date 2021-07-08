@@ -1,7 +1,7 @@
 """The solarwatt_energymanager integration."""
 from __future__ import annotations
 
-from homeassistant.components.solarwatt_energymanager.energy_manager import (
+from custom_components.solarwatt_energymanager.energy_manager import (
     EnergyManager,
 )
 from homeassistant.config_entries import ConfigEntry

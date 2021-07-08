@@ -5,7 +5,7 @@ from typing import Optional
 
 import aiohttp
 
-from homeassistant.components.solarwatt_energymanager.devices import (
+from custom_components.solarwatt_energymanager.devices import (
     EnergyManagerDevices,
 )
 from homeassistant.exceptions import HomeAssistantError
