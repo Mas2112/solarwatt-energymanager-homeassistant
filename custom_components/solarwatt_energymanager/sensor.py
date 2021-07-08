@@ -8,7 +8,7 @@ from typing import Any
 import async_timeout
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.components.solarwatt_energymanager.devices import (
+from custom_components.solarwatt_energymanager.devices import (
     BatteryConverterDevice,
     LocationDevice,
 )
