@@ -1,0 +1,17 @@
+{
+  "domain": "solarwatt_energymanager",
+  "name": "SOLARWATT EnergyManager",
+  "version": "0.1",
+  "config_flow": true,
+  "documentation": "https://github.com/Mas2112/solarwatt-energymanager-homeassistant",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@Mas2112"
+  ],
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/Mas2112/solarwatt-energymanager-homeassistant/issues"
+}

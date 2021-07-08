@@ -1,4 +1,4 @@
-# SOLARWATT EnergyManager Home Assistant Custom Component
+**This component will set up the following platforms.**
 
 | Platform        | Description                         |
 | --------------- | ----------------------------------- |
