@@ -282,7 +282,7 @@ class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
     @property
     def name(self) -> str:
         """Return the name of this Sensor Entity."""
-        return self._em_tag_name
+        return f"EnergyManager {self._em_tag_name}"
 
     @property
     def unit_of_measurement(self) -> str | None:
