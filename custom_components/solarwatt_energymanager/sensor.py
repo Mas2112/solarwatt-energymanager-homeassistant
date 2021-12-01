@@ -7,7 +7,7 @@ from typing import Any
 
 import async_timeout
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL, STATE_CLASS_TOTAL_INCREASING, SensorEntity
 from custom_components.solarwatt_energymanager.devices import (
     BatteryConverterDevice,
     LocationDevice,
@@ -342,6 +342,7 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
+        self.state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as int. Power data is reported as int."""
@@ -377,6 +378,7 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
+        self.state_class = STATE_CLASS_TOTAL_INCREASING
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float in kWh. Data is originally Wh."""
@@ -416,6 +418,7 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
+        self.state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
@@ -454,6 +457,7 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
+        self.state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
@@ -492,6 +496,7 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
+        self.state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
