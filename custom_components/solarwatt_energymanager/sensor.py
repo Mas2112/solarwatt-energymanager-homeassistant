@@ -226,7 +226,7 @@ async def async_setup_entry(
         hass,
         _LOGGER,
         name="Process EnergyManager Data",
-        update_interval=timedelta(seconds=30),
+        update_interval=timedelta(seconds=10),
         update_method=async_get_data,
     )
     await coordinator.async_config_entry_first_refresh()
@@ -342,7 +342,7 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
-        self.state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as int. Power data is reported as int."""
@@ -378,7 +378,7 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
-        self.state_class = STATE_CLASS_TOTAL_INCREASING
+        self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float in kWh. Data is originally Wh."""
@@ -418,7 +418,7 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
-        self.state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
@@ -457,7 +457,7 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
-        self.state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
@@ -496,7 +496,7 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
             em_device_id,
             em_tag_name,
         )
-        self.state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
