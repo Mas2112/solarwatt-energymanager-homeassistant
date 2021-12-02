@@ -333,7 +333,6 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
             "W",
             device_info,
             em_device_id,
-            em_tag_name,
         )
         self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_MEASUREMENT
@@ -370,7 +369,6 @@ class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
             "W",
             device_info,
             em_device_id1 + "|" + em_device_id2,
-            name,
         )
         self._em_device_id1 = em_device_id1
         self._em_tag_name1 = em_tag_name1
@@ -412,7 +410,6 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
             "kWh",
             device_info,
             em_device_id,
-            em_tag_name,
         )
         self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
@@ -451,7 +448,6 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
             "%",
             device_info,
             em_device_id,
-            em_tag_name,
         )
         self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_MEASUREMENT
@@ -489,7 +485,6 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
             "%",
             device_info,
             em_device_id,
-            em_tag_name,
         )
         self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_MEASUREMENT
@@ -527,7 +522,6 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
             "°C",
             device_info,
             em_device_id,
-            em_tag_name,
         )
         self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_MEASUREMENT
