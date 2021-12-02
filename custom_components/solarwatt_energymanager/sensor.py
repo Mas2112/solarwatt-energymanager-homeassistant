@@ -7,7 +7,7 @@ from typing import Any
 
 import async_timeout
 
-from homeassistant.components.sensor import STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL, STATE_CLASS_TOTAL_INCREASING, SensorEntity
+from homeassistant.components.sensor import DEVICE_CLASSES, STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL, STATE_CLASS_TOTAL_INCREASING, SensorEntity
 from custom_components.solarwatt_energymanager.devices import (
     BatteryConverterDevice,
     LocationDevice,
@@ -54,7 +54,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_POWER_BUFFERED,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_POWER_BUFFERED,
         ),
@@ -62,7 +61,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_POWER_CONSUMED,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_POWER_CONSUMED,
         ),
@@ -70,7 +68,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_POWER_IN,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_POWER_IN,
         ),
@@ -78,7 +75,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_POWER_OUT,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_POWER_OUT,
         ),
@@ -86,7 +82,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_POWER_PRODUCED,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_POWER_PRODUCED,
         ),
@@ -94,7 +89,24 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_POWER_RELEASED,
             device_info,
-            LocationDevice.DEVICE_CLASS,
+            location_device.guid,
+            LocationDevice.TAG_POWER_RELEASED,
+        ),
+        EnergyManagerNetPowerSensor(
+            coordinator,
+            "PowerNet",
+            device_info,
+            location_device.guid,
+            LocationDevice.TAG_POWER_IN,
+            location_device.guid,
+            LocationDevice.TAG_POWER_OUT,
+        ),
+        EnergyManagerNetPowerSensor(
+            coordinator,
+            "PowerNetBuffered",
+            device_info,
+            location_device.guid,
+            LocationDevice.TAG_POWER_BUFFERED,
             location_device.guid,
             LocationDevice.TAG_POWER_RELEASED,
         ),
@@ -102,7 +114,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_WORK_BUFFERED,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_WORK_BUFFERED,
         ),
@@ -110,7 +121,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_WORK_CONSUMED,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_WORK_CONSUMED,
         ),
@@ -118,7 +128,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_WORK_IN,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_WORK_IN,
         ),
@@ -126,7 +135,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_WORK_OUT,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_WORK_OUT,
         ),
@@ -134,7 +142,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_WORK_PRODUCED,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_WORK_PRODUCED,
         ),
@@ -142,7 +149,6 @@ def create_location_sensors(
             coordinator,
             LocationDevice.TAG_WORK_RELEASED,
             device_info,
-            LocationDevice.DEVICE_CLASS,
             location_device.guid,
             LocationDevice.TAG_WORK_RELEASED,
         ),
@@ -246,9 +252,7 @@ class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
         device_class: str | None,
         unit: str,
         device_info: DeviceInfo,
-        em_device_class: str,
         em_device_id: str,
-        em_tag_name: str,
     ):
         """Create a new Sensor Entity for EnergyManager process data."""
         super().__init__(coordinator)
@@ -256,9 +260,7 @@ class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
         self._device_class = device_class
         self._unit = unit
         self._device_info = device_info
-        self._em_device_class = em_device_class
         self._em_device_id = em_device_id
-        self._em_tag_name = em_tag_name
 
     @property
     def available(self) -> bool:
@@ -277,12 +279,12 @@ class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
     @property
     def unique_id(self) -> str:
         """Return the unique id of this Sensor Entity."""
-        return f"{self._em_device_id}.{self._em_tag_name}"
+        return f"{self._em_device_id}.{self._name}"
 
     @property
     def name(self) -> str:
         """Return the name of this Sensor Entity."""
-        return f"EnergyManager {self._em_tag_name}"
+        return f"EnergyManager {self._name}"
 
     @property
     def unit_of_measurement(self) -> str | None:
@@ -309,15 +311,8 @@ class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
         return self.get_data()
 
     def get_data(self) -> Any | None:
-        """Get the data from the coordinator as string."""
-        try:
-            devices: EnergyManagerDevices = self.coordinator.data
-            return devices.devices[self._em_device_id].get_tag_value_as_str(
-                self._em_tag_name
-            )
-        except Exception:
-            return None
-
+        """Get the data value."""
+        return "need to implement"
 
 class EnergyManagerPowerSensor(EnergyManagerDataSensor):
     """The EnergyManager power sensor."""
@@ -327,7 +322,6 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
         coordinator: DataUpdateCoordinator,
         name: str,
         device_info: DeviceInfo,
-        em_device_class: str,
         em_device_id: str,
         em_tag_name: str,
     ):
@@ -338,10 +332,10 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
             "power",
             "W",
             device_info,
-            em_device_class,
             em_device_id,
             em_tag_name,
         )
+        self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
@@ -355,6 +349,50 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
             return None
 
 
+class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
+    """The EnergyManager power sensor that calculates the net power between two values."""
+
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator,
+        name: str,
+        device_info: DeviceInfo,
+        em_device_id1: str,
+        em_tag_name1: str,
+        em_device_id2: str,
+        em_tag_name2: str,
+    ):
+        """Create a new Net Power Sensor Entity."""
+        super().__init__(
+            coordinator,
+            name,
+            "power",
+            "W",
+            device_info,
+            em_device_id1 + "|" + em_device_id2,
+            name,
+        )
+        self._em_device_id1 = em_device_id1
+        self._em_tag_name1 = em_tag_name1
+        self._em_device_id2 = em_device_id2
+        self._em_tag_name2 = em_tag_name2
+        self._attr_state_class = STATE_CLASS_MEASUREMENT
+
+    def get_data(self) -> Any | None:
+        """Get the data from the coordinator as int. Power data is reported as int."""
+        try:
+            devices: EnergyManagerDevices = self.coordinator.data
+            value1 = devices.devices[self._em_device_id1].get_tag_value_as_int(
+                self._em_tag_name1
+            )
+            value2 = devices.devices[self._em_device_id2].get_tag_value_as_int(
+                self._em_tag_name2
+            )
+            return value1 - value2
+        except Exception:
+            return None
+
+
 class EnergyManagerWorkSensor(EnergyManagerDataSensor):
     """The EnergyManager work (energy) sensor."""
 
@@ -363,7 +401,6 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
         coordinator: DataUpdateCoordinator,
         name: str,
         device_info: DeviceInfo,
-        em_device_class: str,
         em_device_id: str,
         em_tag_name: str,
     ):
@@ -374,10 +411,10 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
             "energy",
             "kWh",
             device_info,
-            em_device_class,
             em_device_id,
             em_tag_name,
         )
+        self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
 
     def get_data(self) -> Any | None:
@@ -403,7 +440,6 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
         coordinator: DataUpdateCoordinator,
         name: str,
         device_info: DeviceInfo,
-        em_device_class: str,
         em_device_id: str,
         em_tag_name: str,
     ):
@@ -414,10 +450,10 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
             "battery",
             "%",
             device_info,
-            em_device_class,
             em_device_id,
             em_tag_name,
         )
+        self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
@@ -442,7 +478,6 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
         coordinator: DataUpdateCoordinator,
         name: str,
         device_info: DeviceInfo,
-        em_device_class: str,
         em_device_id: str,
         em_tag_name: str,
     ):
@@ -453,10 +488,10 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
             None,
             "%",
             device_info,
-            em_device_class,
             em_device_id,
             em_tag_name,
         )
+        self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
@@ -481,7 +516,6 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
         coordinator: DataUpdateCoordinator,
         name: str,
         device_info: DeviceInfo,
-        em_device_class: str,
         em_device_id: str,
         em_tag_name: str,
     ):
@@ -492,10 +526,10 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
             "temperature",
             "°C",
             device_info,
-            em_device_class,
             em_device_id,
             em_tag_name,
         )
+        self._em_tag_name = em_tag_name
         self._attr_state_class = STATE_CLASS_MEASUREMENT
 
     def get_data(self) -> Any | None:
