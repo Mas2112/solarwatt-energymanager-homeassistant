@@ -1,7 +1,7 @@
 {
   "domain": "solarwatt_energymanager",
   "name": "SOLARWATT EnergyManager",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "config_flow": true,
   "documentation": "https://github.com/Mas2112/solarwatt-energymanager-homeassistant",
   "requirements": [],
