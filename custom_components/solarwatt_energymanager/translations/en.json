@@ -6,7 +6,9 @@
         "error": {
             "cannot_connect": "Failed to connect",
             "cannot_parse_data": "Unable to parse data",
-            "unknown": "Unexpected error"
+            "unknown": "Unexpected error",
+            "poll_interval_num": "Poll interval must be a number.",
+            "poll_interval_value": "Poll interval must be greater than zero."
         },
         "step": {
             "user": {

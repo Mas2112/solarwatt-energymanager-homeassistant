@@ -22,7 +22,7 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
-from .const import DOMAIN
+from .const import DOMAIN, ENERGY_MANAGER, POLL_INTERVAL
 from .energy_manager import EnergyManager, EnergyManagerDevices
 
 _LOGGER = logging.getLogger(__name__)
@@ -216,14 +216,16 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities
 ):
     """Add EnergyManager Sensors."""
-    em: EnergyManager = hass.data[DOMAIN][entry.entry_id]
+    hass_data = hass.data[DOMAIN][entry.entry_id]
+    em: EnergyManager = hass_data[ENERGY_MANAGER]
+    poll_interval: int = hass_data[POLL_INTERVAL]
 
     async def async_get_data():
         """Fetch data from EnergyManager."""
         try:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
-            async with async_timeout.timeout(10):
+            async with async_timeout.timeout(poll_interval):
                 return await em.query_devices()
         except HomeAssistantError as err:
             raise UpdateFailed(f"Error communicating with EnergyManager: {err}")
