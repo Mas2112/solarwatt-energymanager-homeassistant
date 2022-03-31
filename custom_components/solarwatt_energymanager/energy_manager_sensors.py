@@ -18,7 +18,6 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
-from custom_components.solarwatt_energymanager.helper import get_energy_manager_data
 
 from .const import DOMAIN, ENERGY_MANAGER, POLL_INTERVAL
 
@@ -121,7 +120,7 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as int. Power data is reported as int."""
         try:
-            return self._em_value_func(get_energy_manager_data(self.coordinator))
+            return self._em_value_func(self.coordinator.data)
         except Exception:
             return None
 
@@ -154,7 +153,7 @@ class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as int. Power data is reported as int."""
         try:
-            data = get_energy_manager_data(self.coordinator)
+            data = self.coordinator.data
             value1 = self._em_value_func1(data)
             value2 = self._em_value_func2(data)
             return value1 - value2
@@ -188,7 +187,7 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float in kWh. Data is originally Wh."""
         try:
-            return self.em_value_func(get_energy_manager_data(self.coordinator))
+            return self.em_value_func(self.coordinator.data)
         except Exception:
             return None
 
@@ -219,7 +218,7 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
         try:
-            return self.em_value_func(get_energy_manager_data(self.coordinator))
+            return self.em_value_func(self.coordinator.data)
         except Exception:
             return None
 
@@ -250,7 +249,7 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
         try:
-            return self.em_value_func(get_energy_manager_data(self.coordinator))
+            return self.em_value_func(self.coordinator.data)
         except Exception:
             return None
 
@@ -281,6 +280,6 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
         try:
-            return self.em_value_func(get_energy_manager_data(self.coordinator))
+            return self.em_value_func(self.coordinator.data)
         except Exception:
             return None

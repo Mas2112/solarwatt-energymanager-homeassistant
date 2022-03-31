@@ -12,8 +12,6 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
-from custom_components.solarwatt_energymanager.helper import get_battery_device
-
 from .const import DOMAIN
 from .energy_manager_sensors import (
     EnergyManagerDataSensor,
@@ -28,11 +26,8 @@ from .energy_manager_sensors import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def get_energy_manager_data(coordinator: DataUpdateCoordinator) -> em.EnergyManagerData:
-    return coordinator.data
-
-
 def get_battery_device(em: em.EnergyManagerData, guid: str) -> em.BatteryConverterDevice:
+    """Get the battery device with the specified guid."""
     devices = list(filter(lambda d: d.device.guid == guid, em.battery_converter_devices))
     return devices[0] if devices else None
 
