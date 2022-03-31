@@ -1,20 +1,14 @@
 """Config flow for solarwatt_energymanager integration."""
 from __future__ import annotations
 
+from .const import CONFIG_HOST, DEFAULT_POLL_INTERVAL, DOMAIN, POLL_INTERVAL
 import logging
+import solarwatt_energymanager as em
+from homeassistant import config_entries
+from homeassistant.data_entry_flow import FlowResult
 from typing import Any
 
 import voluptuous as vol
-
-from homeassistant import config_entries
-from custom_components.solarwatt_energymanager.energy_manager import (
-    CannotConnect,
-    CannotParseData,
-    EnergyManager,
-)
-from homeassistant.data_entry_flow import FlowResult
-
-from .const import CONFIG_HOST, DEFAULT_POLL_INTERVAL, DOMAIN, POLL_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,13 +26,12 @@ async def validate_host(data: dict[str, Any]) -> str:
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
     host = data[CONFIG_HOST]
-    eman = EnergyManager(host)
+    eman = em.EnergyManager(host)
 
     # Return info that you want to store in the config entry.
     serial_number = await eman.test_connection()
     _LOGGER.info(f"Validate input host='{host}', found serial number '{serial_number}'")
 
-    poll_interval = data[POLL_INTERVAL]
     return serial_number
 
 
@@ -47,6 +40,7 @@ def validate_poll_interval(data: dict[str, Any]) -> str:
         poll_interval = int(data[POLL_INTERVAL])
         if poll_interval < 1:
             return "poll_interval_value"
+        _LOGGER.info(f"Validate poll interval '{poll_interval}'")
     except Exception:  # pylint: disable=broad-except
         return "poll_interval_num"
     return None
@@ -67,9 +61,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             serial_number = ""
             try:
                 serial_number = await validate_host(user_input)
-            except CannotConnect:
+            except em.CannotConnect:
                 errors[CONFIG_HOST] = "cannot_connect"
-            except CannotParseData:
+            except em.CannotParseData:
                 errors[CONFIG_HOST] = "cannot_parse_data"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")

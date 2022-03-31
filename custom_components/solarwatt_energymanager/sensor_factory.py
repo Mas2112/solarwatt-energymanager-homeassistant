@@ -1,0 +1,221 @@
+"""Contains the functions to create sensors."""
+
+from __future__ import annotations
+
+import solarwatt_energymanager as em
+import logging
+
+import solarwatt_energymanager as em
+
+from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+)
+
+from custom_components.solarwatt_energymanager.helper import get_battery_device
+
+from .const import DOMAIN
+from .energy_manager_sensors import (
+    EnergyManagerDataSensor,
+    EnergyManagerPowerSensor,
+    EnergyManagerNetPowerSensor,
+    EnergyManagerStateOfHealthSensor,
+    EnergyManagerStateOfChargeSensor,
+    EnergyManagerTemperatureSensor,
+    EnergyManagerWorkSensor,
+)
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def get_energy_manager_data(coordinator: DataUpdateCoordinator) -> em.EnergyManagerData:
+    return coordinator.data
+
+
+def get_battery_device(em: em.EnergyManagerData, guid: str) -> em.BatteryConverterDevice:
+    devices = list(filter(lambda d: d.device.guid == guid, em.battery_converter_devices))
+    return devices[0] if devices else None
+
+
+def get_device_info(data: em.EnergyManagerData) -> DeviceInfo:
+    """Get the device info for the EnergyManager."""
+    energy_manager = data.energy_manager_device
+    guid = energy_manager.device.guid if energy_manager else ""
+    model = energy_manager.model if energy_manager else ""
+    firmware = energy_manager.firmware if energy_manager else ""
+    return DeviceInfo(
+        name=guid,
+        manufacturer="SOLARWATT",
+        identifiers={(DOMAIN, guid)},
+        model=model,
+        sw_version=firmware,
+    )
+
+
+def create_sensors(
+    coordinator: DataUpdateCoordinator, data: em.EnergyManagerData
+) -> list[EnergyManagerDataSensor]:
+    """Create the sensors for the the available devices."""
+    device_info = get_device_info(data)
+    location_device = data.location_device
+    entities = []
+    if location_device:
+        _LOGGER.info("Creating sensor entities for the location device")
+        entities.extend(
+            create_location_sensors(coordinator, device_info, location_device)
+        )
+    batteries = data.battery_converter_devices
+    batteryCount = len(batteries)
+    if batteryCount > 0:
+        _LOGGER.info(f"Found {batteryCount} batteries")
+        for battery in batteries:
+            _LOGGER.info(f"Creating sensor entities for the battery {battery.device.guid}")
+            entities.extend(
+                create_battery_converter_sensors(
+                    coordinator, device_info, battery
+                )
+            )
+    return entities
+
+
+
+def create_location_sensors(
+    coordinator: DataUpdateCoordinator,
+    device_info: DeviceInfo,
+    location_device: em.LocationDevice,
+) -> list[EnergyManagerDataSensor]:
+    """Create the sensors for the location device."""
+    return [
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.LocationDevice.TAG_POWER_BUFFERED,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.power_buffered,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.LocationDevice.TAG_POWER_CONSUMED,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.power_consumed,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.LocationDevice.TAG_POWER_IN,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.power_in,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.LocationDevice.TAG_POWER_OUT,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.power_out,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.LocationDevice.TAG_POWER_PRODUCED,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.power_produced,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.LocationDevice.TAG_POWER_RELEASED,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.power_released,
+        ),
+        EnergyManagerNetPowerSensor(
+            coordinator,
+            "PowerNet",
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.power_in,
+            lambda d: d.location_device.power_out,
+        ),
+        EnergyManagerNetPowerSensor(
+            coordinator,
+            "PowerNetBuffered",
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.power_buffered,
+            lambda d: d.location_device.power_released,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.LocationDevice.TAG_WORK_BUFFERED,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.work_buffered,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.LocationDevice.TAG_WORK_CONSUMED,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.work_consumed,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.LocationDevice.TAG_WORK_IN,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.work_in,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.LocationDevice.TAG_WORK_OUT,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.work_out,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.LocationDevice.TAG_WORK_PRODUCED,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.work_produced,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.LocationDevice.TAG_WORK_RELEASED,
+            device_info,
+            location_device.guid,
+            lambda d: d.location_device.work_released,
+        ),
+    ]
+
+
+def create_battery_converter_sensors(
+    coordinator: DataUpdateCoordinator,
+    device_info: DeviceInfo,
+    batter_converter_device: em.BatteryConverterDevice,
+) -> list[EnergyManagerDataSensor]:
+    """Create the sensors for the battery converter."""
+    return [
+        EnergyManagerStateOfChargeSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_STATE_OF_CHARGE,
+            device_info,
+            batter_converter_device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).state_of_charge,
+        ),
+        EnergyManagerStateOfHealthSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_STATE_OF_HEALTH,
+            device_info,
+            batter_converter_device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).state_of_health,
+        ),
+        EnergyManagerTemperatureSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_TEMPERATURE_BATTERY,
+            device_info,
+            batter_converter_device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).temperature_battery,
+        ),
+    ]
+

@@ -1,13 +1,12 @@
 """The solarwatt_energymanager integration."""
 from __future__ import annotations
 
-from custom_components.solarwatt_energymanager.energy_manager import (
-    EnergyManager,
-)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import CONFIG_HOST, DOMAIN, ENERGY_MANAGER, POLL_INTERVAL
+
+import solarwatt_energymanager as em
 
 PLATFORMS = ["sensor"]
 
@@ -20,7 +19,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     poll_interval = int(entry.data[POLL_INTERVAL])
 
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = { ENERGY_MANAGER: EnergyManager(host), POLL_INTERVAL: poll_interval }
+    hass.data[DOMAIN][entry.entry_id] = { ENERGY_MANAGER: em.EnergyManager(host), POLL_INTERVAL: poll_interval }
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     return True
 

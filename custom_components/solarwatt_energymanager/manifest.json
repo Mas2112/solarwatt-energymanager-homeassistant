@@ -4,7 +4,7 @@
   "version": "0.3.1",
   "config_flow": true,
   "documentation": "https://github.com/Mas2112/solarwatt-energymanager-homeassistant",
-  "requirements": [],
+  "requirements": ["solarwatt-energymanager-py[aiohttp]==1.0.0"],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
