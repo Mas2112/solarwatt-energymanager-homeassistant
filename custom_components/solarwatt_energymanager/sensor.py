@@ -39,7 +39,7 @@ async def async_setup_entry(
         hass,
         _LOGGER,
         name="Process EnergyManager Data",
-        update_interval=timedelta(seconds=10),
+        update_interval=timedelta(seconds=poll_interval),
         update_method=async_get_data,
     )
     await coordinator.async_config_entry_first_refresh()

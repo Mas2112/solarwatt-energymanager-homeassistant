@@ -2,20 +2,13 @@
 from __future__ import annotations
 import solarwatt_energymanager as em
 
-from datetime import timedelta
 from typing import (Any, Callable)
 
-import async_timeout
-
-from homeassistant.components.sensor import DEVICE_CLASSES, STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL, STATE_CLASS_TOTAL_INCREASING, SensorEntity
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.components.sensor import STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL_INCREASING, SensorEntity
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
-    UpdateFailed,
 )
 
 
@@ -187,7 +180,7 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float in kWh. Data is originally Wh."""
         try:
-            return self.em_value_func(self.coordinator.data)
+            return self._em_value_func(self.coordinator.data)
         except Exception:
             return None
 
@@ -218,7 +211,7 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
         try:
-            return self.em_value_func(self.coordinator.data)
+            return self._em_value_func(self.coordinator.data)
         except Exception:
             return None
 
@@ -249,7 +242,7 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
         try:
-            return self.em_value_func(self.coordinator.data)
+            return self._em_value_func(self.coordinator.data)
         except Exception:
             return None
 
@@ -280,6 +273,6 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
         try:
-            return self.em_value_func(self.coordinator.data)
+            return self._em_value_func(self.coordinator.data)
         except Exception:
             return None
