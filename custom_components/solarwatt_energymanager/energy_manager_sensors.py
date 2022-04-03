@@ -1,10 +1,22 @@
 """Energy Manager sensor definitions."""
 from __future__ import annotations
+
 import solarwatt_energymanager as em
 
 from typing import (Any, Callable)
-
-from homeassistant.components.sensor import STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL_INCREASING, SensorEntity
+from homeassistant.const import (
+    ELECTRIC_CURRENT_AMPERE,
+    ELECTRIC_POTENTIAL_VOLT,
+    ENERGY_KILO_WATT_HOUR,
+    POWER_WATT, PERCENTAGE,
+    TEMP_CELSIUS,
+)
+from homeassistant.components.sensor import (
+    STATE_CLASS_MEASUREMENT,
+    STATE_CLASS_TOTAL_INCREASING,
+    SensorEntity,
+    SensorDeviceClass,
+)
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -102,8 +114,8 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
         super().__init__(
             coordinator,
             name,
-            "power",
-            "W",
+            SensorDeviceClass.POWER,
+            POWER_WATT,
             device_info,
             em_device_id,
         )
@@ -134,8 +146,8 @@ class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
         super().__init__(
             coordinator,
             name,
-            "power",
-            "W",
+            SensorDeviceClass.POWER,
+            POWER_WATT,
             device_info,
             em_device_id,
         )
@@ -165,12 +177,43 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
         em_device_id: str,
         em_value_func: Callable[[em.EnergyManagerData], float],
     ):
-        """Create a new Power Sensor Entity."""
+        """Create a new Work Sensor Entity."""
         super().__init__(
             coordinator,
             name,
-            "energy",
-            "kWh",
+            SensorDeviceClass.ENERGY,
+            ENERGY_KILO_WATT_HOUR,
+            device_info,
+            em_device_id,
+        )
+        self._em_value_func = em_value_func
+        self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
+
+    def get_data(self) -> float | None:
+        """Get the data from the coordinator as float in kWh. Data is originally Wh."""
+        try:
+            return self._em_value_func(self.coordinator.data)
+        except Exception:
+            return None
+
+
+class EnergyManagerCurrentSensor(EnergyManagerDataSensor):
+    """The EnergyManager current sensor."""
+
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator,
+        name: str,
+        device_info: DeviceInfo,
+        em_device_id: str,
+        em_value_func: Callable[[em.EnergyManagerData], float],
+    ):
+        """Create a new Current Sensor Entity."""
+        super().__init__(
+            coordinator,
+            name,
+            SensorDeviceClass.CURRENT,
+            ELECTRIC_CURRENT_AMPERE,
             device_info,
             em_device_id,
         )
@@ -178,7 +221,38 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
         self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
 
     def get_data(self) -> Any | None:
-        """Get the data from the coordinator as float in kWh. Data is originally Wh."""
+        """Get the data from the coordinator as float in A."""
+        try:
+            return self._em_value_func(self.coordinator.data)
+        except Exception:
+            return None
+
+
+class EnergyManagerVoltageSensor(EnergyManagerDataSensor):
+    """The EnergyManager voltag sensor."""
+
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator,
+        name: str,
+        device_info: DeviceInfo,
+        em_device_id: str,
+        em_value_func: Callable[[em.EnergyManagerData], float],
+    ):
+        """Create a new Voltage Sensor Entity."""
+        super().__init__(
+            coordinator,
+            name,
+            SensorDeviceClass.VOLTAGE,
+            ELECTRIC_POTENTIAL_VOLT,
+            device_info,
+            em_device_id,
+        )
+        self._em_value_func = em_value_func
+        self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
+
+    def get_data(self) -> Any | None:
+        """Get the data from the coordinator as float in A."""
         try:
             return self._em_value_func(self.coordinator.data)
         except Exception:
@@ -200,8 +274,8 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
         super().__init__(
             coordinator,
             name,
-            "battery",
-            "%",
+            SensorDeviceClass.BATTERY,
+            PERCENTAGE,
             device_info,
             em_device_id,
         )
@@ -232,7 +306,7 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
             coordinator,
             name,
             None,
-            "%",
+            PERCENTAGE,
             device_info,
             em_device_id,
         )
@@ -262,8 +336,8 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
         super().__init__(
             coordinator,
             name,
-            "temperature",
-            "°C",
+            SensorDeviceClass.TEMPERATURE,
+            TEMP_CELSIUS,
             device_info,
             em_device_id,
         )

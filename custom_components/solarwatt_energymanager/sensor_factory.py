@@ -14,16 +14,22 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import DOMAIN
 from .energy_manager_sensors import (
+    EnergyManagerCurrentSensor,
     EnergyManagerDataSensor,
     EnergyManagerPowerSensor,
     EnergyManagerNetPowerSensor,
     EnergyManagerStateOfHealthSensor,
     EnergyManagerStateOfChargeSensor,
     EnergyManagerTemperatureSensor,
+    EnergyManagerVoltageSensor,
     EnergyManagerWorkSensor,
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def convertToKwh(wh: float) -> float:
+    return round(wh / 1000, 3)
 
 
 def get_battery_device(em: em.EnergyManagerData, guid: str) -> em.BatteryConverterDevice:
@@ -144,42 +150,42 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_BUFFERED,
             device_info,
             location_device.device.guid,
-            lambda d: d.location_device.work_buffered,
+            lambda d: convertToKwh(d.location_device.work_buffered),
         ),
         EnergyManagerWorkSensor(
             coordinator,
             em.LocationDevice.TAG_WORK_CONSUMED,
             device_info,
             location_device.device.guid,
-            lambda d: d.location_device.work_consumed,
+            lambda d: convertToKwh(d.location_device.work_consumed),
         ),
         EnergyManagerWorkSensor(
             coordinator,
             em.LocationDevice.TAG_WORK_IN,
             device_info,
             location_device.device.guid,
-            lambda d: d.location_device.work_in,
+            lambda d: convertToKwh(d.location_device.work_in),
         ),
         EnergyManagerWorkSensor(
             coordinator,
             em.LocationDevice.TAG_WORK_OUT,
             device_info,
             location_device.device.guid,
-            lambda d: d.location_device.work_out,
+            lambda d: convertToKwh(d.location_device.work_out),
         ),
         EnergyManagerWorkSensor(
             coordinator,
             em.LocationDevice.TAG_WORK_PRODUCED,
             device_info,
             location_device.device.guid,
-            lambda d: d.location_device.work_produced,
+            lambda d: convertToKwh(d.location_device.work_produced),
         ),
         EnergyManagerWorkSensor(
             coordinator,
             em.LocationDevice.TAG_WORK_RELEASED,
             device_info,
             location_device.device.guid,
-            lambda d: d.location_device.work_released,
+            lambda d: convertToKwh(d.location_device.work_released),
         ),
     ]
 
@@ -212,5 +218,96 @@ def create_battery_converter_sensors(
             batter_converter_device.device.guid,
             lambda d: get_battery_device(d, batter_converter_device.device.guid).temperature_battery,
         ),
+        EnergyManagerCurrentSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_CURRENT_BATTERY_IN,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).current_battery_in,
+        ),
+        EnergyManagerCurrentSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_CURRENT_BATTERY_OUT,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).current_battery_out,
+        ),
+        EnergyManagerCurrentSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_CURRENT_GRM_IN,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).TAG_CURRENT_GRM_IN,
+        ),
+        EnergyManagerCurrentSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_CURRENT_GRM_OUT,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).TAG_CURRENT_GRM_OUT,
+        ),
+        EnergyManagerCurrentSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_CURRENT_STRING_DC_IN,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).TAG_CURRENT_STRING_DC_IN,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_POWER_AC_IN,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).power_ac_in,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_POWER_AC_OUT,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).power_ac_out,
+        ),
+        EnergyManagerVoltageSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_VOLTAGE_GRM_IN,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).voltage_grm_in,
+        ),
+        EnergyManagerVoltageSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_VOLTAGE_GRM_OUT,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).voltage_grm_out,
+        ),
+        EnergyManagerVoltageSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_VOLTAGE_BATTERY_CELL_MEAN,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).voltage_battery_cell_mean,
+        ),
+        EnergyManagerVoltageSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_VOLTAGE_BATTERY_CELL_STRING,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).voltage_battery_cell_string,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_WORK_AC_IN,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: convertToKwh(get_battery_device(d, batter_converter_device.device.guid).work_ac_in),
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.BatteryConverterDevice.TAG_WORK_AC_OUT,
+            device_info,
+            batter_converter_device.device.guid,
+            lambda d: convertToKwh(get_battery_device(d, batter_converter_device.device.guid).work_ac_out),
+        ),        
     ]
 
