@@ -1,6 +1,6 @@
 """Energy Manager sensor definitions."""
-import solarwatt_energymanager as em
 from __future__ import annotations
+import solarwatt_energymanager as em
 
 from datetime import timedelta
 from typing import (Any, Callable)

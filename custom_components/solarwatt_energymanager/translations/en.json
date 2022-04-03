@@ -13,7 +13,8 @@
         "step": {
             "user": {
                 "data": {
-                    "host": "Host"
+                    "host": "Host",
+                    "poll_interval": "Poll Interval (seconds)"
                 }
             }
         }

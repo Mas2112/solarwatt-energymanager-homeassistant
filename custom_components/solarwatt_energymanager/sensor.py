@@ -31,7 +31,7 @@ async def async_setup_entry(
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
             async with async_timeout.timeout(poll_interval):
-                return await em.query_devices()
+                return await em.get_data()
         except HomeAssistantError as err:
             raise UpdateFailed(f"Error communicating with EnergyManager: {err}")
 
