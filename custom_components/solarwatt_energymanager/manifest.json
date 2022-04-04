@@ -1,10 +1,10 @@
 {
   "domain": "solarwatt_energymanager",
   "name": "SOLARWATT EnergyManager",
-  "version": "0.3.1",
+  "version": "0.4.4",
   "config_flow": true,
   "documentation": "https://github.com/Mas2112/solarwatt-energymanager-homeassistant",
-  "requirements": ["solarwatt-energymanager-py[aiohttp]==1.0.0"],
+  "requirements": ["solarwatt-energymanager-py[aiohttp]==1.1.0"],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},

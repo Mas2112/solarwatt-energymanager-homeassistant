@@ -290,10 +290,10 @@ def create_battery_converter_sensors(
         ),
         EnergyManagerVoltageSensor(
             coordinator,
-            em.BatteryConverterDevice.TAG_VOLTAGE_BATTERY_CELL_STRING,
+            em.BatteryConverterDevice.TAG_VOLTAGE_BATTERY_STRING,
             device_info,
             batter_converter_device.device.guid,
-            lambda d: get_battery_device(d, batter_converter_device.device.guid).voltage_battery_cell_string,
+            lambda d: get_battery_device(d, batter_converter_device.device.guid).voltage_battery_string,
         ),
         EnergyManagerWorkSensor(
             coordinator,
