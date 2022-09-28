@@ -15,6 +15,12 @@ Add this repository to HACS.
 * After adding the integration, restart Home Assistant.
 * Now under Configuration -> Integrations, SOLARWATT EnergyManager should be available.
 
-## Configuration is done in the UI
+## Configuration
 
-
+The configuration is done in the Home Assistant UI.
+* Go to Settings -> Devices & Services
+* Click on the ADD INTEGRATION button
+* Search for SOLARWATT EnergyManager
+* Enter the energy manager IP address in the host field
+* Enter the desired poll interval (in seconds)
+* Click Submit
