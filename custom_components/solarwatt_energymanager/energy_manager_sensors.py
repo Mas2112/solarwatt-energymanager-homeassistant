@@ -12,10 +12,9 @@ from homeassistant.const import (
     TEMP_CELSIUS,
 )
 from homeassistant.components.sensor import (
-    STATE_CLASS_MEASUREMENT,
-    STATE_CLASS_TOTAL_INCREASING,
     SensorEntity,
     SensorDeviceClass,
+    SensorStateClass
 )
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
@@ -120,7 +119,7 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
             em_device_id,
         )
         self._em_value_func = em_value_func
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as int. Power data is reported as int."""
@@ -153,7 +152,7 @@ class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
         )
         self._em_value_func1 = em_value_func1
         self._em_value_func2 = em_value_func2
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as int. Power data is reported as int."""
@@ -187,7 +186,7 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
             em_device_id,
         )
         self._em_value_func = em_value_func
-        self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
 
     def get_data(self) -> float | None:
         """Get the data from the coordinator as float in kWh. Data is originally Wh."""
@@ -218,7 +217,7 @@ class EnergyManagerCurrentSensor(EnergyManagerDataSensor):
             em_device_id,
         )
         self._em_value_func = em_value_func
-        self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
+        self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float in A."""
@@ -249,7 +248,7 @@ class EnergyManagerVoltageSensor(EnergyManagerDataSensor):
             em_device_id,
         )
         self._em_value_func = em_value_func
-        self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
+        self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float in A."""
@@ -280,7 +279,7 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
             em_device_id,
         )
         self._em_value_func = em_value_func
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
@@ -311,7 +310,7 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
             em_device_id,
         )
         self._em_value_func = em_value_func
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
@@ -342,7 +341,7 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
             em_device_id,
         )
         self._em_value_func = em_value_func
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
         """Get the data from the coordinator as float."""
