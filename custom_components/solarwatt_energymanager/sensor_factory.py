@@ -38,6 +38,18 @@ def get_battery_device(em: em.EnergyManagerData, guid: str) -> em.BatteryConvert
     return devices[0] if devices else None
 
 
+def get_ev_station_device(em: em.EnergyManagerData, guid: str) -> em.EVStationDevice:
+    """Get the EV station device with the specified guid."""
+    devices = list(filter(lambda d: d.device.guid == guid, em.ev_station_devices))
+    return devices[0] if devices else None
+
+
+def get_s0_counter_device(em: em.EnergyManagerData, guid: str) -> em.S0CounterDevice:
+    """Get the S0 counter device with the specified guid."""
+    devices = list(filter(lambda d: d.device.guid == guid, em.s0_counter_devices))
+    return devices[0] if devices else None
+
+
 def get_device_info(data: em.EnergyManagerData) -> DeviceInfo:
     """Get the device info for the EnergyManager."""
     energy_manager = data.energy_manager_device
@@ -76,8 +88,29 @@ def create_sensors(
                     coordinator, device_info, battery
                 )
             )
+    evStations = data.ev_station_devices
+    evStationCount = len(evStations)
+    if evStationCount > 0:
+        _LOGGER.info(f"Found {evStationCount} EV stations")
+        for evStation in evStations:
+            _LOGGER.info(f"Creating sensor entities for EV station {evStation.device.guid}")
+            entities.extend(
+                create_ev_station_sensors(
+                    coordinator, device_info, evStation
+                )
+            )
+    s0Counters = data.s0_counter_devices
+    s0CounterCount = len(s0Counters)
+    if s0CounterCount > 0:
+        _LOGGER.info(f"Found {s0CounterCount} S0 counters")
+        for s0Counter in s0Counters:
+            _LOGGER.info(f"Creating sensor entities for S0 counter {s0Counter.device.guid}")
+            entities.extend(
+                create_s0_counter_sensors(
+                    coordinator, device_info, s0Counter
+                )
+            )
     return entities
-
 
 
 def create_location_sensors(
@@ -423,3 +456,115 @@ def create_battery_converter_sensors(
         ),        
     ]
 
+
+def create_ev_station_sensors(
+    coordinator: DataUpdateCoordinator,
+    device_info: DeviceInfo,
+    ev_station_device: em.EVStationDevice,
+) -> list[EnergyManagerDataSensor]:
+    """Create the sensors for the EV station."""
+    return [
+        EnergyManagerStateOfChargeSensor(
+            coordinator,
+            em.EVStationDevice.TAG_STATE_OF_CHARGE,
+            device_info,
+            ev_station_device.device.guid,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).state_of_charge,
+        ),
+        EnergyManagerTemperatureSensor(
+            coordinator,
+            em.EVStationDevice.TAG_TEMPERATURE_BATTERY,
+            device_info,
+            ev_station_device.device.guid,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).temperature_battery,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.EVStationDevice.TAG_POWER_AC_IN,
+            device_info,
+            ev_station_device.device.guid,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).power_ac_in,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.EVStationDevice.TAG_POWER_AC_OUT,
+            device_info,
+            ev_station_device.device.guid,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).power_ac_out,
+        ),
+        EnergyManagerNetPowerSensor(
+            coordinator,
+            "PowerACNet",
+            device_info,
+            ev_station_device.device.guid,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).power_ac_in,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).power_ac_out,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.EVStationDevice.TAG_WORK_AC_IN,
+            device_info,
+            ev_station_device.device.guid,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).work_ac_in,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.EVStationDevice.TAG_WORK_AC_OUT,
+            device_info,
+            ev_station_device.device.guid,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).work_ac_out,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.EVStationDevice.TAG_WORK_AC_IN_SESSION,
+            device_info,
+            ev_station_device.device.guid,
+            lambda d: get_ev_station_device(d, ev_station_device.device.guid).work_ac_in_session,
+        ),
+    ]
+
+
+def create_s0_counter_sensors(
+    coordinator: DataUpdateCoordinator,
+    device_info: DeviceInfo,
+    s0_counter_device: em.S0CounterDevice,
+) -> list[EnergyManagerDataSensor]:
+    """Create the sensors for the EV station."""
+    return [
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.S0CounterDevice.TAG_POWER_IN,
+            device_info,
+            s0_counter_device.device.guid,
+            lambda d: get_s0_counter_device(d, s0_counter_device.device.guid).power_in,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.S0CounterDevice.TAG_POWER_OUT,
+            device_info,
+            s0_counter_device.device.guid,
+            lambda d: get_s0_counter_device(d, s0_counter_device.device.guid).power_out,
+        ),
+        EnergyManagerNetPowerSensor(
+            coordinator,
+            "PowerNet",
+            device_info,
+            s0_counter_device.device.guid,
+            lambda d: get_s0_counter_device(d, s0_counter_device.device.guid).power_in,
+            lambda d: get_s0_counter_device(d, s0_counter_device.device.guid).power_out,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.S0CounterDevice.TAG_WORK_IN,
+            device_info,
+            s0_counter_device.device.guid,
+            lambda d: get_s0_counter_device(d, s0_counter_device.device.guid).work_in,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.S0CounterDevice.TAG_WORK_OUT,
+            device_info,
+            s0_counter_device.device.guid,
+            lambda d: get_s0_counter_device(d, s0_counter_device.device.guid).work_out,
+        ),
+    ]

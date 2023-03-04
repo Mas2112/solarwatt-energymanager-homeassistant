@@ -23,7 +23,12 @@ async def async_setup_entry(
     """Add EnergyManager Sensors."""
     hass_data = hass.data[DOMAIN][entry.entry_id]
     em: em.EnergyManager = hass_data[ENERGY_MANAGER]
-    poll_interval: int = hass_data[POLL_INTERVAL]
+    poll_interval: int = 10
+    if POLL_INTERVAL in hass_data:
+        poll_interval: int = hass_data[POLL_INTERVAL]
+        _LOGGER.debug(f"{POLL_INTERVAL}={poll_interval}")
+    else:
+        _LOGGER.debug(f"Using default {POLL_INTERVAL}={poll_interval}")
 
     async def async_get_data():
         """Fetch data from EnergyManager."""
