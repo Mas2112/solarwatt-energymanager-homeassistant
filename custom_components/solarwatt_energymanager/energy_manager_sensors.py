@@ -36,6 +36,7 @@ class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
         unit: str,
         device_info: DeviceInfo,
         em_device_id: str,
+        em_device_name: str,
     ):
         """Create a new Sensor Entity for EnergyManager process data."""
         super().__init__(coordinator)
@@ -44,6 +45,7 @@ class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
         self._unit = unit
         self._device_info = device_info
         self._em_device_id = em_device_id
+        self._em_device_name = em_device_name
 
     @property
     def available(self) -> bool:
@@ -67,7 +69,7 @@ class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
     @property
     def name(self) -> str:
         """Return the name of this Sensor Entity."""
-        return f"EnergyManager {self._name}"
+        return f"EnergyManager {self._em_device_name} {self._name}"
 
     @property
     def unit_of_measurement(self) -> str | None:
@@ -107,6 +109,7 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
         name: str,
         device_info: DeviceInfo,
         em_device_id: str,
+        em_device_name: str,
         em_value_func: Callable[[em.EnergyManagerData], float],
     ):
         """Create a new Power Sensor Entity."""
@@ -117,6 +120,7 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
             POWER_WATT,
             device_info,
             em_device_id,
+            em_device_name,
         )
         self._em_value_func = em_value_func
         self._attr_state_class = SensorStateClass.MEASUREMENT
@@ -137,7 +141,8 @@ class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
         coordinator: DataUpdateCoordinator,
         name: str,
         device_info: DeviceInfo,
-        em_device_id,
+        em_device_id: str,
+        em_device_name: str,
         em_value_func1: Callable[[em.EnergyManagerData], float],
         em_value_func2: Callable[[em.EnergyManagerData], float],
     ):
@@ -149,6 +154,7 @@ class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
             POWER_WATT,
             device_info,
             em_device_id,
+            em_device_name,
         )
         self._em_value_func1 = em_value_func1
         self._em_value_func2 = em_value_func2
@@ -174,6 +180,7 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
         name: str,
         device_info: DeviceInfo,
         em_device_id: str,
+        em_device_name: str,
         em_value_func: Callable[[em.EnergyManagerData], float],
     ):
         """Create a new Work Sensor Entity."""
@@ -184,6 +191,7 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
             ENERGY_KILO_WATT_HOUR,
             device_info,
             em_device_id,
+            em_device_name,
         )
         self._em_value_func = em_value_func
         self._attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -205,6 +213,7 @@ class EnergyManagerCurrentSensor(EnergyManagerDataSensor):
         name: str,
         device_info: DeviceInfo,
         em_device_id: str,
+        em_device_name: str,
         em_value_func: Callable[[em.EnergyManagerData], float],
     ):
         """Create a new Current Sensor Entity."""
@@ -215,6 +224,7 @@ class EnergyManagerCurrentSensor(EnergyManagerDataSensor):
             ELECTRIC_CURRENT_AMPERE,
             device_info,
             em_device_id,
+            em_device_name,
         )
         self._em_value_func = em_value_func
         self._attr_state_class = SensorStateClass.MEASUREMENT
@@ -236,6 +246,7 @@ class EnergyManagerVoltageSensor(EnergyManagerDataSensor):
         name: str,
         device_info: DeviceInfo,
         em_device_id: str,
+        em_device_name: str,
         em_value_func: Callable[[em.EnergyManagerData], float],
     ):
         """Create a new Voltage Sensor Entity."""
@@ -245,6 +256,7 @@ class EnergyManagerVoltageSensor(EnergyManagerDataSensor):
             SensorDeviceClass.VOLTAGE,
             ELECTRIC_POTENTIAL_VOLT,
             device_info,
+            em_device_name,
             em_device_id,
         )
         self._em_value_func = em_value_func
@@ -267,6 +279,7 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
         name: str,
         device_info: DeviceInfo,
         em_device_id: str,
+        em_device_name: str,
         em_value_func: Callable[[em.EnergyManagerData], float],
     ):
         """Create a new Power Sensor Entity."""
@@ -277,6 +290,7 @@ class EnergyManagerStateOfChargeSensor(EnergyManagerDataSensor):
             PERCENTAGE,
             device_info,
             em_device_id,
+            em_device_name,
         )
         self._em_value_func = em_value_func
         self._attr_state_class = SensorStateClass.MEASUREMENT
@@ -298,6 +312,7 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
         name: str,
         device_info: DeviceInfo,
         em_device_id: str,
+        em_device_name: str,
         em_value_func: Callable[[em.EnergyManagerData], float],
     ):
         """Create a new Sensor Entity."""
@@ -308,6 +323,7 @@ class EnergyManagerStateOfHealthSensor(EnergyManagerDataSensor):
             PERCENTAGE,
             device_info,
             em_device_id,
+            em_device_name,
         )
         self._em_value_func = em_value_func
         self._attr_state_class = SensorStateClass.MEASUREMENT
@@ -329,6 +345,7 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
         name: str,
         device_info: DeviceInfo,
         em_device_id: str,
+        em_device_name: str,
         em_value_func: Callable[[em.EnergyManagerData], float],
     ):
         """Create a new Sensor Entity."""
@@ -339,6 +356,7 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
             TEMP_CELSIUS,
             device_info,
             em_device_id,
+            em_device_name,
         )
         self._em_value_func = em_value_func
         self._attr_state_class = SensorStateClass.MEASUREMENT
