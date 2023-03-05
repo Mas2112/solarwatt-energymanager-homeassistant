@@ -135,6 +135,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_BUFFERED_FROM_GRID,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_buffered_from_grid,
         ),
         EnergyManagerPowerSensor(
@@ -142,6 +143,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_BUFFERED_FROM_PRODUCERS,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_buffered_from_producers,
         ),
         EnergyManagerPowerSensor(
@@ -149,6 +151,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_CONSUMED,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_consumed,
         ),
         EnergyManagerPowerSensor(
@@ -156,6 +159,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_CONSUMED_FROM_GRID,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_consumed_from_grid,
         ),
         EnergyManagerPowerSensor(
@@ -163,6 +167,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_CONSUMED_FROM_PRODUCERS,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_consumed_from_producers,
         ),
         EnergyManagerPowerSensor(
@@ -170,6 +175,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_CONSUMED_FROM_STORAGE,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_consumed_from_storage,
         ),
         EnergyManagerPowerSensor(
@@ -177,6 +183,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_IN,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_in,
         ),
         EnergyManagerPowerSensor(
@@ -184,6 +191,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_OUT,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_out,
         ),
         EnergyManagerPowerSensor(
@@ -191,6 +199,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_OUT_FROM_PRODUCERS,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_out_from_producers,
         ),
         EnergyManagerPowerSensor(
@@ -198,6 +207,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_OUT_FROM_STORAGE,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_out_from_storage,
         ),
         EnergyManagerPowerSensor(
@@ -205,6 +215,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_PRODUCED,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_produced,
         ),
         EnergyManagerPowerSensor(
@@ -212,6 +223,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_RELEASED,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_released,
         ),
         EnergyManagerPowerSensor(
@@ -219,6 +231,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_SELF_CONSUMED,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_self_consumed,
         ),
         EnergyManagerPowerSensor(
@@ -226,6 +239,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_POWER_SELF_SUPPLIED,
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_self_supplied,
         ),
         EnergyManagerNetPowerSensor(
@@ -233,6 +247,7 @@ def create_location_sensors(
             "PowerNet",
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_in,
             lambda d: d.location_device.power_out,
         ),
@@ -241,6 +256,7 @@ def create_location_sensors(
             "PowerNetBuffered",
             device_info,
             guid,
+            device_name,
             lambda d: d.location_device.power_buffered,
             lambda d: d.location_device.power_released,
         ),
@@ -249,6 +265,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_BUFFERED,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_buffered),
         ),
         EnergyManagerWorkSensor(
@@ -256,6 +273,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_BUFFERED_FROM_GRID,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_buffered_from_grid),
         ),
         EnergyManagerWorkSensor(
@@ -263,6 +281,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_BUFFERED_FROM_PRODUCERS,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_buffered_from_producers),
         ),
         EnergyManagerWorkSensor(
@@ -270,6 +289,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_CONSUMED,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_consumed),
         ),
         EnergyManagerWorkSensor(
@@ -277,6 +297,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_CONSUMED_FROM_GRID,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_consumed_from_grid),
         ),
         EnergyManagerWorkSensor(
@@ -284,6 +305,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_CONSUMED_FROM_PRODUCERS,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_consumed_from_producers),
         ),
         EnergyManagerWorkSensor(
@@ -291,6 +313,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_CONSUMED_FROM_STORAGE,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_consumed_from_storage),
         ),
         EnergyManagerWorkSensor(
@@ -298,6 +321,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_IN,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_in),
         ),
         EnergyManagerWorkSensor(
@@ -305,6 +329,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_OUT,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_out),
         ),
         EnergyManagerWorkSensor(
@@ -312,6 +337,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_PRODUCED,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_produced),
         ),
         EnergyManagerWorkSensor(
@@ -319,6 +345,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_RELEASED,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_released),
         ),
         EnergyManagerWorkSensor(
@@ -326,6 +353,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_SELF_CONSUMED,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_self_consumed),
         ),
         EnergyManagerWorkSensor(
@@ -333,6 +361,7 @@ def create_location_sensors(
             em.LocationDevice.TAG_WORK_SELF_SUPPLIED,
             device_info,
             guid,
+            device_name,
             lambda d: convertToKwh(d.location_device.work_self_supplied),
         ),
     ]
