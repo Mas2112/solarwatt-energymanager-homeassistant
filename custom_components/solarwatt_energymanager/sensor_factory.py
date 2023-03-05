@@ -563,7 +563,7 @@ def create_ev_station_sensors(
             device_info,
             guid,
             device_name,
-            lambda d: get_ev_station_device(d, guid).work_ac_in,
+            lambda d: convertToKwh(get_ev_station_device(d, guid).work_ac_in),
         ),
         EnergyManagerWorkSensor(
             coordinator,
@@ -571,7 +571,7 @@ def create_ev_station_sensors(
             device_info,
             guid,
             device_name,
-            lambda d: get_ev_station_device(d, guid).work_ac_out,
+            lambda d: convertToKwh(get_ev_station_device(d, guid).work_ac_out),
         ),
         EnergyManagerWorkSensor(
             coordinator,
@@ -579,7 +579,7 @@ def create_ev_station_sensors(
             device_info,
             guid,
             device_name,
-            lambda d: get_ev_station_device(d, guid).work_ac_in_session,
+            lambda d: convertToKwh(get_ev_station_device(d, guid).work_ac_in_session),
         ),
     ]
 
@@ -624,7 +624,7 @@ def create_s0_counter_sensors(
             device_info,
             guid,
             device_name,
-            lambda d: get_s0_counter_device(d, guid).work_in,
+            lambda d: convertToKwh(get_s0_counter_device(d, guid).work_in),
         ),
         EnergyManagerWorkSensor(
             coordinator,
@@ -632,6 +632,6 @@ def create_s0_counter_sensors(
             device_info,
             guid,
             device_name,
-            lambda d: get_s0_counter_device(d, guid).work_out,
+            lambda d: convertToKwh(get_s0_counter_device(d, guid).work_out),
         ),
     ]
