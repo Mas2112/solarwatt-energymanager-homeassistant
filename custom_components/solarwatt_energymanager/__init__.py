@@ -16,11 +16,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Store API object
     host = entry.data[CONFIG_HOST]
-    poll_interval = int(entry.data[POLL_INTERVAL])
+    poll_interval: int = 10
+    if POLL_INTERVAL in entry.data:
+        try:
+            poll_interval = int(entry.data[POLL_INTERVAL])
+        except:
+            poll_interval = 10
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = { ENERGY_MANAGER: em.EnergyManager(host), POLL_INTERVAL: poll_interval }
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
