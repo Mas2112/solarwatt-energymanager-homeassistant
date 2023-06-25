@@ -32,13 +32,17 @@ async def async_setup_entry(
 
     async def async_get_data():
         """Fetch data from EnergyManager."""
+        data = None
         try:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
             async with async_timeout.timeout(poll_interval):
-                return await em.get_data()
+                data = await em.get_data()
         except HomeAssistantError as err:
             raise UpdateFailed(f"Error communicating with EnergyManager: {err}")
+        if data is None:
+            raise UpdateFailed("EnergyManager failed to return data")
+        return data
 
     coordinator = DataUpdateCoordinator(
         hass,

@@ -126,7 +126,7 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
         self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
-        """Get the data from the coordinator as int. Power data is reported as int."""
+        """Get the data from the coordinator as float. Power data is reported as float."""
         try:
             return self._em_value_func(self.coordinator.data)
         except Exception:
@@ -161,7 +161,7 @@ class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
         self._attr_state_class = SensorStateClass.MEASUREMENT
 
     def get_data(self) -> Any | None:
-        """Get the data from the coordinator as int. Power data is reported as int."""
+        """Get the data from the coordinator as float. Power data is reported as float."""
         try:
             data = self.coordinator.data
             value1 = self._em_value_func1(data)
