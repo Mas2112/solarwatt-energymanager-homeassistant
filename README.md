@@ -2,9 +2,9 @@
 
 | Platform        | Description                         |
 | --------------- | ----------------------------------- |
-| `sensor`        | EnergyManager power and energy sensors.
-|
+| `sensor`        | EnergyManager power and energy sensors. |
 
+⚠️ **EnergyManager Flex** is not supported by this integration, as it uses a completely different OS.
 
 ## Installation
 
