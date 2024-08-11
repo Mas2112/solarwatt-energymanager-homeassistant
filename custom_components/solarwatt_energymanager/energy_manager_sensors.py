@@ -1,20 +1,22 @@
 """Energy Manager sensor definitions."""
+
 from __future__ import annotations
 
 import solarwatt_energymanager as em
 
-from typing import (Any, Callable)
+from typing import Any, Callable
 from homeassistant.const import (
-    ELECTRIC_CURRENT_AMPERE,
-    ELECTRIC_POTENTIAL_VOLT,
-    ENERGY_KILO_WATT_HOUR,
-    POWER_WATT, PERCENTAGE,
-    TEMP_CELSIUS,
+    UnitOfElectricCurrent,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfPower,
+    PERCENTAGE,
+    UnitOfTemperature,
 )
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorDeviceClass,
-    SensorStateClass
+    SensorStateClass,
 )
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
@@ -24,6 +26,7 @@ from homeassistant.helpers.update_coordinator import (
 
 
 from .const import DOMAIN, ENERGY_MANAGER, POLL_INTERVAL
+
 
 class EnergyManagerDataSensor(CoordinatorEntity, SensorEntity):
     """Base class for an EnergyManager data Sensor."""
@@ -117,7 +120,7 @@ class EnergyManagerPowerSensor(EnergyManagerDataSensor):
             coordinator,
             name,
             SensorDeviceClass.POWER,
-            POWER_WATT,
+            UnitOfPower.WATT,
             device_info,
             em_device_id,
             em_device_name,
@@ -151,7 +154,7 @@ class EnergyManagerNetPowerSensor(EnergyManagerDataSensor):
             coordinator,
             name,
             SensorDeviceClass.POWER,
-            POWER_WATT,
+            UnitOfPower.WATT,
             device_info,
             em_device_id,
             em_device_name,
@@ -188,7 +191,7 @@ class EnergyManagerWorkSensor(EnergyManagerDataSensor):
             coordinator,
             name,
             SensorDeviceClass.ENERGY,
-            ENERGY_KILO_WATT_HOUR,
+            UnitOfEnergy.KILO_WATT_HOUR,
             device_info,
             em_device_id,
             em_device_name,
@@ -221,7 +224,7 @@ class EnergyManagerCurrentSensor(EnergyManagerDataSensor):
             coordinator,
             name,
             SensorDeviceClass.CURRENT,
-            ELECTRIC_CURRENT_AMPERE,
+            UnitOfElectricCurrent.AMPERE,
             device_info,
             em_device_id,
             em_device_name,
@@ -254,7 +257,7 @@ class EnergyManagerVoltageSensor(EnergyManagerDataSensor):
             coordinator,
             name,
             SensorDeviceClass.VOLTAGE,
-            ELECTRIC_POTENTIAL_VOLT,
+            UnitOfElectricPotential.VOLT,
             device_info,
             em_device_name,
             em_device_id,
@@ -353,7 +356,7 @@ class EnergyManagerTemperatureSensor(EnergyManagerDataSensor):
             coordinator,
             name,
             SensorDeviceClass.TEMPERATURE,
-            TEMP_CELSIUS,
+            UnitOfTemperature.CELSIUS,
             device_info,
             em_device_id,
             em_device_name,
