@@ -50,6 +50,12 @@ def get_s0_counter_device(em: em.EnergyManagerData, guid: str) -> em.S0CounterDe
     return devices[0] if devices else None
 
 
+def get_power_meter_device(em: em.EnergyManagerData, guid: str) -> em.PowerMeterDevice:
+    """Get the Power Meter device with the specified guid."""
+    devices = list(filter(lambda d: d.device.guid == guid, em.power_meter_devices))
+    return devices[0] if devices else None
+
+
 def get_device_info(data: em.EnergyManagerData) -> DeviceInfo:
     """Get the device info for the EnergyManager."""
     energy_manager = data.energy_manager_device
@@ -110,6 +116,18 @@ def create_sensors(
                     coordinator, device_info, s0Counter
                 )
             )
+    powerMeters = data.power_meter_devices
+    powerMeterCount = len(powerMeters)
+    if powerMeterCount > 0:
+        _LOGGER.info(f"Found {powerMeterCount} Power Meters")
+        for powerMeter in powerMeters:
+            _LOGGER.info(f"Creating sensor entities for Power Meter {powerMeter.device.guid}")
+            entities.extend(
+                create_power_meter_sensors(
+                    coordinator, device_info, powerMeter
+                )
+            )
+        
     return entities
 
 
@@ -589,7 +607,7 @@ def create_s0_counter_sensors(
     device_info: DeviceInfo,
     s0_counter_device: em.S0CounterDevice,
 ) -> list[EnergyManagerDataSensor]:
-    """Create the sensors for the EV station."""
+    """Create the sensors for the s0 counter."""
     guid = s0_counter_device.device.guid
     device_name = s0_counter_device.device.get_device_name()
     return [
@@ -633,5 +651,58 @@ def create_s0_counter_sensors(
             guid,
             device_name,
             lambda d: convertToKwh(get_s0_counter_device(d, guid).work_out),
+        ),
+    ]
+
+
+def create_power_meter_sensors(
+    coordinator: DataUpdateCoordinator,
+    device_info: DeviceInfo,
+    power_meter_device: em.PowerMeterDevice,
+) -> list[EnergyManagerDataSensor]:
+    """Create the sensors for the power meter."""
+    guid = power_meter_device.device.guid
+    device_name = power_meter_device.device.get_device_name()
+    return [
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.PowerMeterDevice.TAG_POWER_IN,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_power_meter_device(d, guid).power_in,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            em.PowerMeterDevice.TAG_POWER_OUT,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_power_meter_device(d, guid).power_out,
+        ),
+        EnergyManagerNetPowerSensor(
+            coordinator,
+            "PowerNet",
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_power_meter_device(d, guid).power_in,
+            lambda d: get_power_meter_device(d, guid).power_out,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.PowerMeterDevice.TAG_WORK_IN,
+            device_info,
+            guid,
+            device_name,
+            lambda d: convertToKwh(get_power_meter_device(d, guid).work_in),
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            em.PowerMeterDevice.TAG_WORK_OUT,
+            device_info,
+            guid,
+            device_name,
+            lambda d: convertToKwh(get_power_meter_device(d, guid).work_out),
         ),
     ]
