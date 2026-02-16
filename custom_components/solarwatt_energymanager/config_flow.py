@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from .const import CONFIG_HOST, DEFAULT_POLL_INTERVAL, DOMAIN, POLL_INTERVAL
 import logging
-import solarwatt_energymanager as em
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
 from typing import Any
@@ -46,22 +45,35 @@ async def validate_host(data: dict[str, Any]) -> str:
     _LOGGER.debug("validate_host: normalized host '%s' from raw input '%s'", host, raw_host)
 
     try:
+        # Lazy import the upstream client so missing dependency does not
+        # fail module import (which would make HA treat the config flow as
+        # an invalid handler).
+        import solarwatt_energymanager as em
         eman = em.EnergyManager(host)
         serial_number = await eman.test_connection()
         _LOGGER.info("Validate input host='%s', found serial number '%s'", host, serial_number)
         return serial_number
-    except em.energy_manager.CannotParseData:
-        # Let the caller handle parse errors explicitly.
-        _LOGGER.exception("Failed to parse JSON from EnergyManager at host %s", host)
-        raise
-    except asyncio.TimeoutError:
-        _LOGGER.warning("Timeout when contacting EnergyManager at %s", host)
-        raise em.energy_manager.CannotConnect
     except Exception as exc:  # pylint: disable=broad-except
-        # Log full traceback for diagnostics and normalize to CannotConnect so
-        # the config flow can reuse existing UI error strings.
-        _LOGGER.exception("Error validating EnergyManager host %s: %s", host, exc)
-        raise em.energy_manager.CannotConnect
+        # If the upstream package is present try to map known exception
+        # types to preserve specific UI errors; otherwise log and raise
+        # the original exception so the caller can map it.
+        try:
+            import solarwatt_energymanager as em
+            if isinstance(exc, em.energy_manager.CannotParseData):
+                _LOGGER.exception("Failed to parse JSON from EnergyManager at host %s", host)
+                raise
+            if isinstance(exc, asyncio.TimeoutError):
+                _LOGGER.warning("Timeout when contacting EnergyManager at %s", host)
+                raise em.energy_manager.CannotConnect
+            # Fallback: map other errors to CannotConnect
+            raise em.energy_manager.CannotConnect
+        except ModuleNotFoundError:
+            # Upstream package missing — log and re-raise original exception
+            _LOGGER.exception("Error validating EnergyManager host %s: %s", host, exc)
+            raise
+        except Exception:
+            # If mapping raised a known upstream exception, re-raise it
+            raise
 
 
 def quick_validate_host_input(data: dict[str, Any]) -> str | None:
@@ -130,26 +142,37 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle the initial step."""
-
         errors = {}
         if user_input is not None:
-                # Quick local validation to catch obvious mistakes before network calls
-                quick_err = quick_validate_host_input(user_input)
-                if quick_err is not None:
-                    errors[CONFIG_HOST] = quick_err
-                    return self.async_show_form(
-                        step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
-                    )
+            # Quick local validation to catch obvious mistakes before network calls
+            quick_err = quick_validate_host_input(user_input)
+            if quick_err is not None:
+                errors[CONFIG_HOST] = quick_err
+                return self.async_show_form(
+                    step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+                )
+
             serial_number = ""
             try:
                 serial_number = await validate_host(user_input)
-            except em.energy_manager.CannotConnect:
-                errors[CONFIG_HOST] = "cannot_connect"
-            except em.energy_manager.CannotParseData:
-                errors[CONFIG_HOST] = "cannot_parse_data"
-            except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception")
-                errors[CONFIG_HOST] = "unknown"
+            except Exception as exc:  # pylint: disable=broad-except
+                # Map known upstream exceptions to UI error keys if possible
+                mapped = False
+                try:
+                    import solarwatt_energymanager as em
+                    if isinstance(exc, em.energy_manager.CannotConnect):
+                        errors[CONFIG_HOST] = "cannot_connect"
+                        mapped = True
+                    elif isinstance(exc, em.energy_manager.CannotParseData):
+                        errors[CONFIG_HOST] = "cannot_parse_data"
+                        mapped = True
+                except Exception:
+                    # Upstream not available — fall through to generic handling
+                    pass
+
+                if not mapped:
+                    _LOGGER.exception("Unexpected exception in config flow for EnergyManager: %s", exc)
+                    errors[CONFIG_HOST] = "unknown"
             else:
                 error = validate_poll_interval(user_input)
                 if error is not None:
