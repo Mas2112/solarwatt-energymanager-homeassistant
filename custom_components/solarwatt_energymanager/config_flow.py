@@ -48,11 +48,11 @@ async def validate_host(data: dict[str, Any]) -> str:
         # Lazy import the upstream client so missing dependency does not
         # fail module import (which would make HA treat the config flow as
         # an invalid handler).
-        _LOGGER.debug("validate_host: attempting to import solarwatt_energymanager")
+        _LOGGER.info("validate_host: attempting to import solarwatt_energymanager for host %s", host)
         import solarwatt_energymanager as em
-        _LOGGER.debug("validate_host: creating EnergyManager for host %s", host)
+        _LOGGER.info("validate_host: creating EnergyManager for host %s", host)
         eman = em.EnergyManager(host)
-        _LOGGER.debug("validate_host: calling test_connection for host %s", host)
+        _LOGGER.info("validate_host: calling test_connection for host %s", host)
         serial_number = await eman.test_connection()
         _LOGGER.info("validate_host: Successfully connected to host='%s', serial=%s", host, serial_number)
         return serial_number
@@ -60,7 +60,7 @@ async def validate_host(data: dict[str, Any]) -> str:
         # If the upstream package is present try to map known exception
         # types to preserve specific UI errors; otherwise log and raise
         # the original exception so the caller can map it.
-        _LOGGER.debug("validate_host: caught exception type %s: %s", type(exc).__name__, exc, exc_info=exc)
+        _LOGGER.error("validate_host: caught exception type %s for host %s: %s", type(exc).__name__, host, exc, exc_info=exc)
         try:
             import solarwatt_energymanager as em
             if isinstance(exc, em.energy_manager.CannotParseData):
@@ -70,7 +70,7 @@ async def validate_host(data: dict[str, Any]) -> str:
                 _LOGGER.warning("validate_host: Timeout (asyncio.TimeoutError) contacting EnergyManager at %s", host)
                 raise em.energy_manager.CannotConnect
             # Fallback: map other errors to CannotConnect
-            _LOGGER.debug("validate_host: mapping exception type %s to CannotConnect", type(exc).__name__)
+            _LOGGER.info("validate_host: mapping exception type %s to CannotConnect", type(exc).__name__)
             raise em.energy_manager.CannotConnect
         except ModuleNotFoundError as me:
             # Upstream package missing — log and re-raise original exception
@@ -78,7 +78,7 @@ async def validate_host(data: dict[str, Any]) -> str:
             raise
         except Exception:
             # If mapping raised a known upstream exception, re-raise it
-            _LOGGER.debug("validate_host: re-raising mapped exception")
+            _LOGGER.info("validate_host: re-raising mapped exception")
             raise
 
 
