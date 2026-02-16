@@ -48,31 +48,37 @@ async def validate_host(data: dict[str, Any]) -> str:
         # Lazy import the upstream client so missing dependency does not
         # fail module import (which would make HA treat the config flow as
         # an invalid handler).
+        _LOGGER.debug("validate_host: attempting to import solarwatt_energymanager")
         import solarwatt_energymanager as em
+        _LOGGER.debug("validate_host: creating EnergyManager for host %s", host)
         eman = em.EnergyManager(host)
+        _LOGGER.debug("validate_host: calling test_connection for host %s", host)
         serial_number = await eman.test_connection()
-        _LOGGER.info("Validate input host='%s', found serial number '%s'", host, serial_number)
+        _LOGGER.info("validate_host: Successfully connected to host='%s', serial=%s", host, serial_number)
         return serial_number
     except Exception as exc:  # pylint: disable=broad-except
         # If the upstream package is present try to map known exception
         # types to preserve specific UI errors; otherwise log and raise
         # the original exception so the caller can map it.
+        _LOGGER.debug("validate_host: caught exception type %s: %s", type(exc).__name__, exc)
         try:
             import solarwatt_energymanager as em
             if isinstance(exc, em.energy_manager.CannotParseData):
-                _LOGGER.exception("Failed to parse JSON from EnergyManager at host %s", host)
+                _LOGGER.error("validate_host: CannotParseData for host %s", host, exc_info=exc)
                 raise
             if isinstance(exc, asyncio.TimeoutError):
-                _LOGGER.warning("Timeout when contacting EnergyManager at %s", host)
+                _LOGGER.warning("validate_host: Timeout (asyncio.TimeoutError) contacting EnergyManager at %s", host)
                 raise em.energy_manager.CannotConnect
             # Fallback: map other errors to CannotConnect
+            _LOGGER.debug("validate_host: mapping exception to CannotConnect")
             raise em.energy_manager.CannotConnect
-        except ModuleNotFoundError:
+        except ModuleNotFoundError as me:
             # Upstream package missing — log and re-raise original exception
-            _LOGGER.exception("Error validating EnergyManager host %s: %s", host, exc)
+            _LOGGER.error("validate_host: solarwatt_energymanager package not found: %s", me)
             raise
         except Exception:
             # If mapping raised a known upstream exception, re-raise it
+            _LOGGER.debug("validate_host: re-raising mapped exception")
             raise
 
 
@@ -157,21 +163,25 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 serial_number = await validate_host(user_input)
             except Exception as exc:  # pylint: disable=broad-except
                 # Map known upstream exceptions to UI error keys if possible
+                _LOGGER.debug("async_step_user: caught exception during validate_host, type=%s", type(exc).__name__)
                 mapped = False
                 try:
                     import solarwatt_energymanager as em
                     if isinstance(exc, em.energy_manager.CannotConnect):
+                        _LOGGER.warning("async_step_user: CannotConnect exception caught for host %s", user_input.get(CONFIG_HOST))
                         errors[CONFIG_HOST] = "cannot_connect"
                         mapped = True
                     elif isinstance(exc, em.energy_manager.CannotParseData):
+                        _LOGGER.warning("async_step_user: CannotParseData exception caught for host %s", user_input.get(CONFIG_HOST))
                         errors[CONFIG_HOST] = "cannot_parse_data"
                         mapped = True
-                except Exception:
+                except Exception as map_exc:
                     # Upstream not available — fall through to generic handling
+                    _LOGGER.debug("async_step_user: could not import upstream to map exception: %s", map_exc)
                     pass
 
                 if not mapped:
-                    _LOGGER.exception("Unexpected exception in config flow for EnergyManager: %s", exc)
+                    _LOGGER.error("async_step_user: unmapped exception for validate_host: %s", exc, exc_info=exc)
                     errors[CONFIG_HOST] = "unknown"
             else:
                 error = validate_poll_interval(user_input)
