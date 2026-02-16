@@ -42,7 +42,7 @@ async def validate_host(data: dict[str, Any]) -> str:
     if ":" in host:
         host = host.split(":")[0]
 
-    _LOGGER.debug("validate_host: normalized host '%s' from raw input '%s'", host, raw_host)
+    _LOGGER.info("validate_host: normalized host '%s' from raw input '%s'", host, raw_host)
 
     try:
         # Lazy import the upstream client so missing dependency does not
@@ -163,21 +163,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 serial_number = await validate_host(user_input)
             except Exception as exc:  # pylint: disable=broad-except
                 # Map known upstream exceptions to UI error keys if possible
-                _LOGGER.debug("async_step_user: caught exception during validate_host, type=%s", type(exc).__name__)
+                _LOGGER.info("async_step_user: caught exception during validate_host, type=%s: %s", type(exc).__name__, exc, exc_info=exc)
                 mapped = False
                 try:
                     import solarwatt_energymanager as em
                     if isinstance(exc, em.energy_manager.CannotConnect):
-                        _LOGGER.warning("async_step_user: CannotConnect exception caught for host %s", user_input.get(CONFIG_HOST))
+                        _LOGGER.info("async_step_user: CannotConnect exception caught for host %s (raw input)", user_input.get(CONFIG_HOST))
                         errors[CONFIG_HOST] = "cannot_connect"
                         mapped = True
                     elif isinstance(exc, em.energy_manager.CannotParseData):
-                        _LOGGER.warning("async_step_user: CannotParseData exception caught for host %s", user_input.get(CONFIG_HOST))
+                        _LOGGER.info("async_step_user: CannotParseData exception caught for host %s (raw input)", user_input.get(CONFIG_HOST))
                         errors[CONFIG_HOST] = "cannot_parse_data"
                         mapped = True
                 except Exception as map_exc:
                     # Upstream not available — fall through to generic handling
-                    _LOGGER.debug("async_step_user: could not import upstream to map exception: %s", map_exc)
+                    _LOGGER.error("async_step_user: could not import upstream to map exception: %s", map_exc, exc_info=map_exc)
                     pass
 
                 if not mapped:
