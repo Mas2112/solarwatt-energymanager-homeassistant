@@ -60,7 +60,7 @@ async def validate_host(data: dict[str, Any]) -> str:
         # If the upstream package is present try to map known exception
         # types to preserve specific UI errors; otherwise log and raise
         # the original exception so the caller can map it.
-        _LOGGER.debug("validate_host: caught exception type %s: %s", type(exc).__name__, exc)
+        _LOGGER.debug("validate_host: caught exception type %s: %s", type(exc).__name__, exc, exc_info=exc)
         try:
             import solarwatt_energymanager as em
             if isinstance(exc, em.energy_manager.CannotParseData):
@@ -70,7 +70,7 @@ async def validate_host(data: dict[str, Any]) -> str:
                 _LOGGER.warning("validate_host: Timeout (asyncio.TimeoutError) contacting EnergyManager at %s", host)
                 raise em.energy_manager.CannotConnect
             # Fallback: map other errors to CannotConnect
-            _LOGGER.debug("validate_host: mapping exception to CannotConnect")
+            _LOGGER.debug("validate_host: mapping exception type %s to CannotConnect", type(exc).__name__)
             raise em.energy_manager.CannotConnect
         except ModuleNotFoundError as me:
             # Upstream package missing — log and re-raise original exception
