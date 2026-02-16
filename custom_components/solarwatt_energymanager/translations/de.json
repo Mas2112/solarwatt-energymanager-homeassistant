@@ -1,0 +1,26 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Gerät ist bereits konfiguriert"
+        },
+        "error": {
+            "cannot_connect": "Verbindung fehlgeschlagen",
+            "host_empty": "Host ist leer",
+            "host_whitespace": "Host enthält Leerzeichen",
+            "invalid_host": "Ungültiges Host-Format",
+            "cannot_parse_data": "Daten konnten nicht geparst werden",
+            "unknown": "Unerwarteter Fehler",
+            "poll_interval_num": "Abfrageintervall muss eine Zahl sein.",
+            "poll_interval_value": "Abfrageintervall muss größer als null sein."
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "host": "Host",
+                    "poll_interval": "Abfrageintervall (Sekunden)"
+                }
+            }
+        }
+    },
+    "title": "SOLARWATT EnergyManager"
+}
