@@ -11,6 +11,9 @@
     },
     "error": {
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "host_empty": "Host is empty",
+      "host_whitespace": "Host contains whitespace",
+      "invalid_host": "Invalid host format",
       "cannot_parse_data": "Unable to parse data",
       "unknown": "[%key:common::config_flow::error::unknown%]"
     },
