@@ -24,6 +24,7 @@ from .energy_manager_sensors import (
     EnergyManagerVoltageSensor,
     EnergyManagerWorkSensor,
 )
+from .smart_heater_device import SmartHeaterDevice
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -54,6 +55,23 @@ def get_power_meter_device(em: em.EnergyManagerData, guid: str) -> em.PowerMeter
     """Get the Power Meter device with the specified guid."""
     devices = list(filter(lambda d: d.device.guid == guid, em.power_meter_devices))
     return devices[0] if devices else None
+
+
+def get_smart_heater_devices(data: em.EnergyManagerData) -> list[SmartHeaterDevice]:
+    """Get all SmartHeater devices from the raw device map."""
+    return [
+        SmartHeaterDevice(device)
+        for device in data.devices.values()
+        if SmartHeaterDevice.DEVICE_CLASS in device.device_classes
+    ]
+
+
+def get_smart_heater_device(data: em.EnergyManagerData, guid: str) -> SmartHeaterDevice | None:
+    """Get the SmartHeater device with the specified guid."""
+    device = data.devices.get(guid)
+    if device and SmartHeaterDevice.DEVICE_CLASS in device.device_classes:
+        return SmartHeaterDevice(device)
+    return None
 
 
 def get_device_info(data: em.EnergyManagerData) -> DeviceInfo:
@@ -125,6 +143,17 @@ def create_sensors(
             entities.extend(
                 create_power_meter_sensors(
                     coordinator, device_info, powerMeter
+                )
+            )
+    smartHeaters = get_smart_heater_devices(data)
+    smartHeaterCount = len(smartHeaters)
+    if smartHeaterCount > 0:
+        _LOGGER.info(f"Found {smartHeaterCount} SmartHeaters")
+        for smartHeater in smartHeaters:
+            _LOGGER.info(f"Creating sensor entities for SmartHeater {smartHeater.device.guid}")
+            entities.extend(
+                create_smart_heater_sensors(
+                    coordinator, device_info, smartHeater
                 )
             )
         
@@ -704,5 +733,89 @@ def create_power_meter_sensors(
             guid,
             device_name,
             lambda d: convertToKwh(get_power_meter_device(d, guid).work_out),
+        ),
+    ]
+
+
+def create_smart_heater_sensors(
+    coordinator: DataUpdateCoordinator,
+    device_info: DeviceInfo,
+    smart_heater_device: SmartHeaterDevice,
+) -> list[EnergyManagerDataSensor]:
+    """Create the sensors for a SmartHeater device."""
+    guid = smart_heater_device.device.guid
+    device_name = smart_heater_device.device.get_device_name()
+    return [
+        EnergyManagerPowerSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_POWER_AC_IN,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_smart_heater_device(d, guid).power_ac_in,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_POWER_AC_IN_MAX,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_smart_heater_device(d, guid).power_ac_in_max,
+        ),
+        EnergyManagerPowerSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_POWER_AC_IN_LIMIT,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_smart_heater_device(d, guid).power_ac_in_limit,
+        ),
+        EnergyManagerWorkSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_WORK_AC_IN,
+            device_info,
+            guid,
+            device_name,
+            lambda d: convertToKwh(get_smart_heater_device(d, guid).work_ac_in),
+        ),
+        EnergyManagerTemperatureSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_TEMPERATURE,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_smart_heater_device(d, guid).temperature,
+        ),
+        EnergyManagerTemperatureSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_TEMPERATURE_BOILER,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_smart_heater_device(d, guid).temperature_boiler,
+        ),
+        EnergyManagerTemperatureSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_TEMPERATURE_SET,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_smart_heater_device(d, guid).temperature_set,
+        ),
+        EnergyManagerTemperatureSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_TEMPERATURE_SET_MIN,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_smart_heater_device(d, guid).temperature_set_min,
+        ),
+        EnergyManagerTemperatureSensor(
+            coordinator,
+            SmartHeaterDevice.TAG_TEMPERATURE_SET_MAX,
+            device_info,
+            guid,
+            device_name,
+            lambda d: get_smart_heater_device(d, guid).temperature_set_max,
         ),
     ]
